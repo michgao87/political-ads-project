@@ -11,33 +11,39 @@ knitr::opts_chunk$set(echo = F)
 library(fs)
 library(infer)
 library(purrr)
+library(lubridate)
+library(ISOweek)
 library(tidyverse)
 
 ```
 
-```{r setup_data}
+```{r ads_data, message = F}
 
 # Read in the political ad data sets and filter for US information
 
 ads <- read_csv("google-ads-data/google-political-ads-creative-stats.csv") %>% 
   filter(Regions == "US") %>% 
-  select(Ad_ID, Ad_URL, Ad_Type, Advertiser_ID, Advertiser_Name, Ad_Campaigns_List, Date_Range_Start, Date_Range_End, Num_of_Days, Impressions, Spend_USD)
+  select(Ad_ID, Ad_URL, Ad_Type, Advertiser_ID, Advertiser_Name, Ad_Campaigns_List, Date_Range_Start, Date_Range_End, Num_of_Days, Impressions, Spend_USD, Spend_Range_Min_USD, Spend_Range_Max_USD)
 
 advertisers <- read_csv("google-ads-data/google-political-ads-advertiser-stats.csv") %>% 
   filter(Regions == "US") %>% 
   select(Advertiser_ID, Advertiser_Name, Public_IDs_List, Total_Creatives, Spend_USD)
 
-# Probably deprecated
-advertisers_weekly_spend <- read_csv("google-ads-data/google-political-ads-advertiser-weekly-spend.csv")
+advertisers_weekly_spend <-
+  read_csv("google-ads-data/google-political-ads-advertiser-weekly-spend.csv") %>% 
+  select(Advertiser_ID, Advertiser_Name, Week_Start_Date, Spend_USD)  
 
 # Probably won't use
 ad_campaigns <- read_csv("google-ads-data/google-political-ads-campaign-targeting.csv")
 geo_spend <- read_csv("google-ads-data/google-political-ads-geo-spend.csv")
 keywords <- read_csv("google-ads-data/google-political-ads-top-keywords-history.csv")
 
-# Subset only the ads related to the Democratic presidential candidates
+# Create a vector holding the PACs for the Democratic presidential candidates
 
 candidates = "BIDEN|WARREN|BERNIE|PETE FOR AMERICA|KAMALA HARRIS FOR THE PEOPLE|CORY 2020|YANG|TULSI NOW|WILLIAMSON|AMY FOR AMERICA|BULLOCK FOR PRESIDENT|JULIAN FOR THE FUTURE|JOHN DELANEY|WAYNE MESSAM|TOM STEYER|GILLIBRAND 2020|BETO FOR AMERICA|DE BLASIO|MIKE GRAVEL|HICKENLOOPER|INSLEE|SETH MOULTON|SWALWELL|TIM RYAN"
+
+# Create a function that creates a new column with 
+# candidates' names based on the advertisers' names
 
 ad_to_candidate <- function(Advertiser_Name) {
   case_when(
@@ -67,21 +73,23 @@ ad_to_candidate <- function(Advertiser_Name) {
     str_detect(Advertiser_Name, "RYAN") ~ "Ryan")
 }
 
-advertisers <- advertisers %>% 
-  filter(str_detect(Advertiser_Name, candidates)) %>% 
-  mutate(candidate = map_chr(Advertiser_Name, ~ad_to_candidate(.x)))
+# Create a function that will add a new candidate column
+# to existing tibbles by mapping the ad_to_candidate function
 
-ads <- ads %>% 
+add_candidate_column <- function(data) {
+  data %>% 
   filter(str_detect(Advertiser_Name, candidates)) %>% 
   mutate(candidate = map_chr(Advertiser_Name, ~ad_to_candidate(.x)))
+}
 
-ad_campaigns <- ad_campaigns %>% 
-  filter(str_detect(Advertiser_Name, candidates)) %>% 
-  mutate(candidate = map_chr(Advertiser_Name, ~ad_to_candidate(.x)))
+advertisers <- add_candidate_column(advertisers)
+ads <- add_candidate_column(ads)
+ad_campaigns <- add_candidate_column(ad_campaigns)
+advertisers_weekly_spend <- add_candidate_column(advertisers_weekly_spend)
 
 ```
 
-```{r}
+```{r polls_data, message = F}
 
 # Read in polling data
 
@@ -97,6 +105,31 @@ primaries <- primaries %>%
   select(poll_id, state, pollster, pollster_id, start_date, end_date, answer, candidate_name, party, pct) %>% 
   filter(party == "DEM")
   
-primaries %>% distinct(answer)
+# Calculate avg results for each candidate based on end date of primary polls
+# by day, week, and month
+
+primary_daily_avgs <- primaries %>% 
+  group_by(end_date, answer) %>% 
+  summarize(avg_pct = mean(pct))
+
+primary_weekly_avgs <- primaries %>% 
+  mutate(start_week = floor_date(mdy(end_date), "week", week_start = 7)) %>%
+  mutate(end_week = ceiling_date(mdy(end_date), "week", week_start = 6, change_on_boundary = F)) %>%
+  # Get the Saturday, last day, of that week
+  arrange(start_week) %>% 
+  # Keep only 2019
+  filter(end_week > "2019-01-01") %>%  
+  group_by(start_week, end_week, answer) %>% 
+  summarize(avg_pct = mean(pct))
+
+primary_monthly_avgs <- primaries %>% 
+  mutate(month = month(mdy(end_date))) %>% 
+  group_by(month, end_date, answer) %>% 
+  summarize(avg_pct = mean(pct))
+```
+
+```{r merge_data}
+
+
 ```
 
