@@ -14,6 +14,7 @@ library(purrr)
 library(lubridate)
 library(ISOweek)
 library(broom)
+library(ggplot2)
 library(tidyverse)
 
 ```
@@ -241,8 +242,71 @@ poll_ads_weekly %>%
   # mutate(rsquared = map_dbl(model, ~glance(.x) %>% pluck("r.squared")))
 ```
 
+```{r rds_data}
+# ads_file <- tempfile()
+# advertisers_file <- tempfile()
+# advertisers_weekly_spend_file <- tempfile()
+# ad_campaigns_file <- tempfile()
+# primaries_file <- tempfile()
+# poll_ads_weekly_file <- tempfile()
+
+write_rds(ads, "app/ads.rds")
+write_rds(advertisers, "app/advertisers.rds")
+write_rds(advertisers_weekly_spend, "app/advertisers_weekly_spend.rds")
+write_rds(ad_campaigns, "app/ad_campaigns.rds")
+write_rds(primaries, "app/primaries.rds")
+write_rds(poll_ads_weekly, "app/poll_ads_weekly.rds")
+```
+
 ```{r graph_data}
 
+october_debate_cands <- c("Biden", "Booker", "Buttigieg", "Castro", "Gabbard",
+                          "Harris", "Klobuchar", "O'Rourke", "Sanders",
+                          "Steyer", "Warren", "Yang")
 
+november_debate_cands <- c("Biden", "Booker", "Buttigieg", "Gabbard",
+                          "Harris", "Klobuchar", "Sanders",
+                          "Steyer", "Warren", "Yang")
+
+december_debate_cands <- c("Biden", "Buttigieg", "Harris", 
+                           "Klobuchar", "Sanders","Warren")
+
+poll_ads_weekly %>% 
+  filter(answer %in% october_debate_cands) %>% 
+  ggplot(aes(x = end_week, y = Spend_USD, group = answer, color = answer)) +
+  geom_line()
+
+poll_ads_weekly %>% 
+  filter(answer %in% november_debate_cands) %>% 
+  ggplot(aes(x = end_week, y = Spend_USD, group = answer, color = answer)) +
+  geom_line()
+
+poll_ads_weekly %>% 
+  filter(answer %in% c("Biden", "Warren", "Sanders", "Buttigieg", "Harris")) %>% 
+  ggplot(aes(x = end_week, y = Spend_USD, group = answer, color = answer)) +
+  geom_line()
+
+poll_ads_weekly %>% 
+  filter(answer %in% c("Biden", "Warren", "Sanders", "Buttigieg", "Harris")) %>% 
+  ggplot(aes(x = end_week, y = avg_pct, group = answer, color = answer)) +
+  geom_line()
+
+poll_ads_weekly %>% 
+  filter(answer %in% december_debate_cands) %>% 
+  ggplot(aes(x = end_week, y = avg_pct, group = answer, color = answer)) +
+  geom_line()
+
+poll_ads_weekly %>% 
+  filter(answer %in% december_debate_cands) %>% 
+  ggplot(aes(x = end_week)) +
+  geom_line(aes(y = Spend_USD, color = "Spend")) +
+  geom_line(aes(y = avg_pct * 10000, color = "Percent")) +
+  scale_y_continuous(sec.axis = sec_axis(~./10000, name = "Percent")) +
+  facet_wrap(~answer)
+
+poll_ads_weekly %>% 
+      filter(answer %in% december_debate_cands) %>% 
+      ggplot(aes(x = end_week, y = ad_number, fill = answer)) +
+      geom_col()
 ```
 
