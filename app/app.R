@@ -10,6 +10,8 @@
 library(shiny)
 library(tidyverse)
 library(plotly)
+library(scales)
+library(directlabels)
 
 ads <- read_rds("ads.rds")
 advertisers <- read_rds("advertisers.rds")
@@ -21,7 +23,7 @@ poll_ads_weekly <- read_rds("poll_ads_weekly.rds")
 
 # Define UI for application 
 ui <- fluidPage(
-  navbarPage("Political Web Ads",
+  navbarPage("Google Political Ads",
   tabPanel("Model",
           tabsetPanel(
             tabPanel("Model"))),    
@@ -41,10 +43,7 @@ ui <- fluidPage(
            )),
   tabPanel("About",
           mainPanel(
-            h3("Data"),
-            h6("The data comes from the Google Transparency Political Ad Project. "),
-            h3("Me"),
-            h6("I am a Harvard junior studying government and statistics.")
+            includeHTML("about.Rhtml")
           ))
   )
 )
@@ -67,31 +66,51 @@ server <- function(input, output) {
     poll_ads_weekly %>% 
       filter(answer %in% december_debate_cands) %>% 
       ggplot(aes(x = end_week)) +
-      geom_line(aes(y = Spend_USD, color = "Spend")) +
+      geom_line(aes(y = Spend_USD, color = "Ad Spending")) +
       geom_line(aes(y = avg_pct * 10000, color = "Percent")) +
-      scale_y_continuous(sec.axis = sec_axis(~./10000, name = "Percent")) +
-      facet_wrap(~answer)
+      scale_y_continuous(label = comma, sec.axis = sec_axis(~./10000, name = "Percent")) +
+      facet_wrap(~answer) +
+      labs(x = "Week", y = "Ad Spending (USD)", sec.axis = "Polling %",
+           title = "Ad Spending and Polling Results over 2019",
+           subtitle = "Democratic candidates qualified for December debate",
+           color = "Color")
   })
   
   output$polling_plot <- renderPlot({
     poll_ads_weekly %>% 
       filter(answer %in% december_debate_cands) %>% 
       ggplot(aes(x = end_week, y = avg_pct, group = answer, color = answer)) +
-      geom_line()
+      geom_line() +
+      scale_color_discrete(guide = "none") +
+      coord_cartesian(clip = "off") +
+      geom_dl(aes(label = answer), method = list(dl.combine("last.points"))) +
+      labs(title = "Primary Polling Results over 2019",
+           subtitle = "Democratic candidates qualified for December debate",
+           x = "Week", y = "Avg. Poll Result (%)",
+           caption = "Avg. Poll Result calculated by averaging the results of all primary polls ending that week, as collected by FiveThirtyEight")
   })
   
   output$spend_plot <- renderPlot({
     poll_ads_weekly %>% 
       filter(answer %in% december_debate_cands) %>% 
       ggplot(aes(x = end_week, y = Spend_USD, group = answer, color = answer)) +
-      geom_line()
+      geom_line() +
+      scale_y_continuous(label = comma) +
+      labs(x = "Week", y = "Ad Spending (USD)", 
+           title = "Ad Spending per Week",
+           subtitle = "Democratic candidates qualified for December debate",
+           color = "Candidate")
   })
   
   output$number_of_ads_plot <- renderPlot({
     poll_ads_weekly %>% 
       filter(answer %in% december_debate_cands) %>% 
       ggplot(aes(x = end_week, y = ad_number, fill = answer)) +
-      geom_col()
+      geom_col() +
+      labs(x = "Week", y = "Number of Ads", 
+           title = "Number of Ads Run per Week",
+           subtitle = "Democratic candidates qualified for December debate",
+           color = "Candidate")
   })
 }
 
