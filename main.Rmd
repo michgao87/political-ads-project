@@ -119,8 +119,9 @@ primaries <- primaries %>%
 # by day, week, and month
 
 primary_daily_avgs <- primaries %>% 
-  group_by(end_date, answer) %>% 
-  summarize(avg_pct = mean(pct))
+  mutate(end_date = mdy(end_date)) %>% 
+  group_by(end_date, answer) %>%
+  summarize(avg_pct = mean(pct)) 
 
 primary_weekly_avgs <- primaries %>% 
   mutate(start_week = floor_date(mdy(end_date), "week", week_start = 7)) %>%
@@ -139,6 +140,11 @@ primary_monthly_avgs <- primaries %>%
 ```
 
 ```{r merge_data}
+
+# poll_ads_daily <- primary_daily_avgs %>% 
+#   left_join(ads, by = c("end_date" = "Date_Range_End", "answer" = "candidate")) %>% 
+#   arrange(end_date, desc(avg_pct)) %>% 
+#   select(-c(Advertiser_ID, Advertiser_Name)) 
 
 # Merge datasets by week 
 
@@ -165,6 +171,30 @@ poll_ads_weekly <- poll_ads_weekly %>%
   # If there are no ads for that week, make ad_number = 0
   mutate(ad_number = replace_na(ad_number, 0)) 
 
+# Count ad types and calculate percentage
+# Vast majority of ads are text; so compare to videos and texts
+
+text_ads_weekly <- ads %>% 
+  filter(end_week > "2019-01-01") %>% 
+  group_by(end_week, candidate) %>%
+  summarize(text_ads = sum(Ad_Type == "Text") / n()) %>% 
+  arrange(end_week, desc(text_ads))
+
+poll_ads_weekly <- poll_ads_weekly %>% 
+  left_join(text_ads_weekly, by = c("end_week" = "end_week", "answer" = "candidate")) %>% 
+  mutate(text_ads = replace_na(text_ads, 0)) 
+
+# Create binary variable: below and above 10K impressions, since that is the finest level of data
+impressions_ads_weekly <- ads %>% 
+  filter(end_week > "2019-01-01") %>% 
+  group_by(end_week, candidate) %>%
+  summarize(above_10k_impressions = 1 - sum(Impressions == "≤ 10k") / n()) %>% 
+  arrange(end_week, desc(above_10k_impressions))
+
+poll_ads_weekly <- poll_ads_weekly %>% 
+  left_join(impressions_ads_weekly, by = c("end_week" = "end_week", "answer" = "candidate")) %>% 
+  mutate(above_10k_impressions = replace_na(above_10k_impressions, 0)) 
+
 # Add predictor variable: # of impressions
 # Unfortunately, because impressions are grouped into such large categories 
 # ≤ 10k, 10k–100k, 100k–1M, 1M–10M, > 10M, 
@@ -187,8 +217,7 @@ poll_ads_weekly <- poll_ads_weekly %>%
   
 
 
-lm(pct_change ~ num_change, data = poll_ads_weekly) %>% 
-  summary()
+
  
   
 ```

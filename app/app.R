@@ -8,10 +8,12 @@
 #
 
 library(shiny)
-library(tidyverse)
+library(broom)
 library(plotly)
 library(scales)
 library(directlabels)
+library(gt)
+library(tidyverse)
 
 ads <- read_rds("ads.rds")
 advertisers <- read_rds("advertisers.rds")
@@ -26,7 +28,13 @@ ui <- fluidPage(
   navbarPage("Google Political Ads",
   tabPanel("Model",
           tabsetPanel(
-            tabPanel("Model"))),    
+            tabPanel("Model",
+                     dataTableOutput("spend_by_cand_model"),
+                     tableOutput("number_by_cand_model"),
+                     tableOutput("full_spend_model"),
+                     tableOutput("full_numb_model"),
+                     tableOutput("full_spend_numb_model"))
+            )),    
   tabPanel("Visualizations",
            tabsetPanel(
              tabPanel("Overview",
@@ -112,6 +120,55 @@ server <- function(input, output) {
            subtitle = "Democratic candidates qualified for December debate",
            color = "Candidate")
   })
+  
+  # Regression models
+  
+  output$full_spend_model <- renderTable({
+    lm(avg_pct ~ Spend_USD, data = poll_ads_weekly) %>% 
+      tidy()
+  })
+  
+  output$full_numb_model <- renderTable({
+    lm(avg_pct ~ ad_number, data = poll_ads_weekly) %>% 
+      tidy()
+  })
+  
+  output$full_text_model <- renderTable({
+    lm(avg_pct ~ Spend_USD*text_ads, data = poll_ads_weekly) %>% 
+      tidy()
+  })
+  
+  output$full_spend_numb_model <- renderTable({
+    lm(avg_pct ~ Spend_USD * ad_number, data = poll_ads_weekly) %>% 
+      tidy()
+  })
+
+  output$spend_by_cand_model <- renderDataTable({
+    poll_ads_weekly %>% 
+      filter(answer %in% december_debate_cands) %>% 
+      group_by(answer) %>% 
+      nest() %>% 
+      mutate(model = map(data, ~lm(avg_pct ~ Spend_USD, data = .x))) %>% 
+      mutate(spend_coef = map_dbl(model, ~coef(.x) %>% pluck("Spend_USD"))) %>% 
+      mutate(rsquared = map_dbl(model, ~glance(.x) %>% pluck("r.squared"))) %>% 
+      #bind_cols(list(c("Biden", "Sanders", "Warren", "Harris", "Klobuchar", "Buttigieg"))) %>% 
+      select(answer, spend_coef, rsquared) %>%
+      as.data.frame() #%>% 
+      #gt()# %>% 
+      #fmt_number(columns = vars(spend_coef), decimals = 5)
+  })
+  
+  output$number_by_cand_model <- renderTable({
+    poll_ads_weekly %>% 
+      filter(answer %in% december_debate_cands) %>% 
+      group_by(answer) %>% 
+      nest() %>% 
+      mutate(model = map(data, ~lm(avg_pct ~ ad_number, data = .x))) %>% 
+      mutate(number_coef = map_dbl(model, ~coef(.x) %>% pluck("ad_number"))) %>% 
+      mutate(rsquared = map_dbl(model, ~glance(.x) %>% pluck("r.squared"))) %>% 
+      select(-c(model, data)) 
+  })
+  
 }
 
 # Run the application 
