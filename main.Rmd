@@ -38,7 +38,8 @@ advertisers_weekly_spend <-
   mutate(Week_End_Date = Week_Start_Date + 6)
 
 # Probably won't use
-ad_campaigns <- read_csv("google-ads-data/google-political-ads-campaign-targeting.csv")
+ad_campaigns <- read_csv("google-ads-data/google-political-ads-campaign-targeting.csv") %>% 
+  mutate(end_week = ceiling_date(Start_Date, "week", week_start = 6, change_on_boundary = F))
 geo_spend <- read_csv("google-ads-data/google-political-ads-geo-spend.csv")
 keywords <- read_csv("google-ads-data/google-political-ads-top-keywords-history.csv")
 
@@ -195,11 +196,27 @@ poll_ads_weekly <- poll_ads_weekly %>%
   left_join(impressions_ads_weekly, by = c("end_week" = "end_week", "answer" = "candidate")) %>% 
   mutate(above_10k_impressions = replace_na(above_10k_impressions, 0)) 
 
-# Add predictor variable: # of impressions
-# Unfortunately, because impressions are grouped into such large categories 
-# ≤ 10k, 10k–100k, 100k–1M, 1M–10M, > 10M, 
-# I will use this variable as a factor rather than a number
+# Create variable for percentage of ads that do age targeting
+age_targeting_weekly <- ad_campaigns %>% 
+  filter(end_week > "2019-01-01") %>% 
+  group_by(end_week, candidate) %>%
+  summarize(age_targeting = 1 - sum(Age_Targeting == "Not targeted") / n()) %>% 
+  arrange(end_week, desc(age_targeting))
 
+poll_ads_weekly <- poll_ads_weekly %>% 
+  left_join(age_targeting_weekly, by = c("end_week" = "end_week", "answer" = "candidate")) %>% 
+  mutate(age_targeting = replace_na(age_targeting, 0)) 
+
+# Create variable for percentage of ads that do gender targeting
+gender_targeting_weekly <- ad_campaigns %>% 
+  filter(end_week > "2019-01-01") %>% 
+  group_by(end_week, candidate) %>%
+  summarize(gender_targeting = 1 - sum(Gender_Targeting == "Not targeted") / n()) %>% 
+  arrange(end_week, desc(gender_targeting))
+
+poll_ads_weekly <- poll_ads_weekly %>% 
+  left_join(gender_targeting_weekly, by = c("end_week" = "end_week", "answer" = "candidate")) %>% 
+  mutate(gender_targeting = replace_na(gender_targeting, 0)) 
 
 # Add columns calculating change in poll result, ad spend, and number of ads
 # from previous week
@@ -337,5 +354,8 @@ poll_ads_weekly %>%
       filter(answer %in% december_debate_cands) %>% 
       ggplot(aes(x = end_week, y = ad_number, fill = answer)) +
       geom_col()
+
+ coefplot(full_model)
+    #dwplot(full_model, conf.level = .90)
 ```
 
