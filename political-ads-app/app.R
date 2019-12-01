@@ -27,6 +27,7 @@ poll_ads_weekly <- read_rds("poll_ads_weekly.rds")
 
 
 # Define UI for application 
+
 ui <- fluidPage(
   navbarPage("Google Political Ads",
   tabPanel("Model",
@@ -138,8 +139,17 @@ server <- function(input, output) {
   
   # Regression models
   
+  # Do regression models only for candidates 
+  
   november_poll_ads_weekly <- poll_ads_weekly %>% 
-    filter(answer %in% november_debate_cands)
+    filter(answer %in% november_debate_cands) %>% 
+    
+    # Because so much money is involved in ad spending, 
+    # to make the regression clearer to see, scale Spend_USD by 1000
+    # so that in regression, the association is based on an increase
+    # in ad spend by $1000, not just $1
+    
+    mutate(Spend_USD = Spend_USD / 1000)
   
   full_model = lm(avg_pct ~ Spend_USD + ad_number + text_ads 
                   + above_10k_impressions + age_targeting 
