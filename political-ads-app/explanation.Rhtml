@@ -1,0 +1,30 @@
+<html>
+
+<body>
+
+<h3> Variables </h3>
+
+<h6> All variables are aggregated over one week. </h6>
+
+<h6> Spend_USD: Amount of money spent on ads that week. This is the only variable included in the regression model that was given in the original Google ads dataset. </h6>
+
+<h6> Ad_number: Number of ads run that week. In the dataset, each line corresponds to one ad, so I summed these up. </h6>
+
+<h6> Above_10k_impressions: Percentage of ads run that week that gained over 10K impressions. Google provides a column on "Impressions" received for each ad, in buckets on a logarithmic scale:  less than 10K, 10K - 100K, 100K - 1M, and so on. Because the majority of ads gained fewer than 10K impressions, and because these buckets were too broad, I created my own variable. </h6>
+
+<h6> Text_ads: Percentage of ads run that week that were text-based. There are three types of ads: text, image, and video. Because the majority of ads were text-based, I decided to see how effective the medium was. </h6>
+
+<h6> Age_targeting: Percentage of ads run that week that used some form of age targeting. The datasets include more specific age groupings, but I saw that about 60% of ads were not targeted, so I wanted to see how important targeting was at all. </h6>
+
+<h6> Gender_targeting: Percentage of ads run that week that used some form of gender targeting. Similarly to age, I saw that there was more specific information on the types of gender targeting, but the majority were not targeted. </h6>
+
+<h3> Models </h3>
+
+<h6> Full Model: Includes every predictor variable listed above. </h6>
+
+<h6> Spend Model: Only regresses on Spend_USD. </h6>
+
+<h6> Ad Volume Model: Only regresses on ad_number. </h6>
+
+</body>
+</html>
