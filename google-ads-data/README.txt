@@ -24,6 +24,51 @@ Spend_Range_Min_USD - Lower bound of the amount in USD spent by the advertiser
 on the political ad.
 Spend_Range_Max_USD - Upper bound of the amount in USD spent by the advertiser
 on the political ad.
+Spend_Range_Min_EUR - Lower bound of the amount in EUR spent by the advertiser
+on the political ad.
+Spend_Range_Max_EUR - Upper bound of the amount in EUR spent by the advertiser
+on the political ad.
+Spend_Range_Min_INR - Lower bound of the amount in INR spent by the advertiser
+on the political ad.
+Spend_Range_Max_INR - Upper bound of the amount in INR spent by the advertiser
+on the political ad.
+Spend_Range_Min_BGN - Lower bound of the amount in BGN spent by the advertiser
+on the political ad.
+Spend_Range_Max_BGN - Upper bound of the amount in BGN spent by the advertiser
+on the political ad.
+Spend_Range_Min_HRK - Lower bound of the amount in HRK spent by the advertiser
+on the political ad.
+Spend_Range_Max_HRK - Upper bound of the amount in HRK spent by the advertiser
+on the political ad.
+Spend_Range_Min_CZK - Lower bound of the amount in CZK spent by the advertiser
+on the political ad.
+Spend_Range_Max_CZK - Upper bound of the amount in CZK spent by the advertiser
+on the political ad.
+Spend_Range_Min_DKK - Lower bound of the amount in DKK spent by the advertiser
+on the political ad.
+Spend_Range_Max_DKK - Upper bound of the amount in DKK spent by the advertiser
+on the political ad.
+Spend_Range_Min_HUF - Lower bound of the amount in HUF spent by the advertiser
+on the political ad.
+Spend_Range_Max_HUF - Upper bound of the amount in HUF spent by the advertiser
+on the political ad.
+Spend_Range_Min_PLN - Lower bound of the amount in PLN spent by the advertiser
+on the political ad.
+Spend_Range_Max_PLN - Upper bound of the amount in PLN spent by the advertiser
+on the political ad.
+Spend_Range_Min_RON - Lower bound of the amount in RON spent by the advertiser
+on the political ad.
+Spend_Range_Max_RON - Upper bound of the amount in RON spent by the advertiser
+on the political ad.
+Spend_Range_Min_SEK - Lower bound of the amount in SEK spent by the advertiser
+on the political ad.
+Spend_Range_Max_SEK - Upper bound of the amount in SEK spent by the advertiser
+on the political ad.
+Spend_Range_Min_GBP - Lower bound of the amount in GBP spent by the advertiser
+on the political ad.
+Spend_Range_Max_GBP - Upper bound of the amount in GBP spent by the advertiser
+on the political ad.
+
 
 google-political-ads-advertiser-stats.csv
 
@@ -42,6 +87,18 @@ the regions.
 Total_Creatives - Total number of political ads the advertiser ran with at least
 one impression.
 Spend_USD - Total amount in USD spent on political ads by the advertiser.
+Spend_EUR - Total amount in EUR spent on political ads by the advertiser.
+Spend_INR - Total amount in INR spent on political ads by the advertiser.
+Spend_BGN - Total amount in BGN spent on political ads by the advertiser.
+Spend_HRK - Total amount in HRK spent on political ads by the advertiser.
+Spend_CZK - Total amount in CZK spent on political ads by the advertiser.
+Spend_DKK - Total amount in DKK spent on political ads by the advertiser.
+Spend_HUF - Total amount in HUF spent on political ads by the advertiser.
+Spend_PLN - Total amount in PLN spent on political ads by the advertiser.
+Spend_RON - Total amount in RON spent on political ads by the advertiser.
+Spend_SEK - Total amount in SEK spent on political ads by the advertiser.
+Spend_GBP - Total amount in GBP spent on political ads by the advertiser.
+
 
 google-political-ads-advertiser-weekly-spend.csv
 
@@ -58,6 +115,29 @@ time after July 2019.
 Week_Start_Date - The start date for the week where spending occurred.
 Spend_USD - The amount in USD spent on political ads during the given week by
 the advertiser.
+Spend_EUR - The amount in EUR spent on political ads during the given week by
+the advertiser.
+Spend_INR - The amount in INR spent on political ads during the given week by
+the advertiser.
+Spend_BGN - The amount in BGN spent on political ads during the given week by
+the advertiser.
+Spend_HRK - The amount in HRK spent on political ads during the given week by
+the advertiser.
+Spend_CZK - The amount in CZK spent on political ads during the given week by
+the advertiser.
+Spend_DKK - The amount in DKK spent on political ads during the given week by
+the advertiser.
+Spend_HUF - The amount in HUF spent on political ads during the given week by
+the advertiser.
+Spend_PLN - The amount in PLN spent on political ads during the given week by
+the advertiser.
+Spend_RON - The amount in RON spent on political ads during the given week by
+the advertiser.
+Spend_SEK - The amount in SEK spent on political ads during the given week by
+the advertiser.
+Spend_GBP - The amount in GBP spent on political ads during the given week by
+the advertiser.
+
 
 google-political-ads-campaign-targeting.csv
 
@@ -93,6 +173,19 @@ For example: "US-CA" for California state in United States.
 Country_Subdivision_Secondary - The name of the secondary subdivision.
 For example: The name of a US congressional district.
 Spend_USD - Total amount in USD spent on political ads in this region.
+Spend_EUR - Total amount in EUR spent on political ads in this region.
+Spend_INR - Total amount in INR spent on political ads in this region.
+Spend_BGN - Total amount in BGN spent on political ads in this region.
+Spend_HRK - Total amount in HRK spent on political ads in this region.
+Spend_CZK - Total amount in CZK spent on political ads in this region.
+Spend_DKK - Total amount in DKK spent on political ads in this region.
+Spend_HUF - Total amount in HUF spent on political ads in this region.
+Spend_PLN - Total amount in PLN spent on political ads in this region.
+Spend_RON - Total amount in RON spent on political ads in this region.
+Spend_SEK - Total amount in SEK spent on political ads in this region.
+Spend_GBP - Total amount in GBP spent on political ads in this region.
+
+
 google-political-ads-top-keywords-history.csv
 
 This file contains the information for the top six keywords on which political
