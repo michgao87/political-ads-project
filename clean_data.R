@@ -174,6 +174,7 @@ poll_ads_weekly <- primary_weekly_avgs %>%
                    "answer" = "candidate")) %>% 
   arrange(end_week, desc(avg_pct)) %>% 
   select(-c(Advertiser_ID, Advertiser_Name)) %>% 
+  filter(end_week < "2019-11-25") %>% 
   
   # Left_join the new predictor variables created above
 
