@@ -194,11 +194,6 @@ poll_ads_weekly <- primary_weekly_avgs %>%
          age_targeting = replace_na(age_targeting, 0),
          gender_targeting = replace_na(gender_targeting, 0)) 
 
-# WRITE CLEAN DATA INTO RDS FILES
+# WRITE CLEAN DATA INTO RDS FILE
 
-write_rds(ads, "political-ads-app/ads.rds")
-write_rds(advertisers, "political-ads-app/advertisers.rds")
-write_rds(advertisers_weekly_spend, "political-ads-app/advertisers_weekly_spend.rds")
-write_rds(ad_campaigns, "political-ads-app/ad_campaigns.rds")
-write_rds(primaries, "political-ads-app/primaries.rds")
 write_rds(poll_ads_weekly, "political-ads-app/poll_ads_weekly.rds")
