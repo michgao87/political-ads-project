@@ -123,7 +123,9 @@ ui <- fluidPage(
                       # coefficient is fully positive, so it is very likely the relationship
                       # is indeed positive 
                       
-                      gt_output("spend_coef_table")),
+                      gt_output("spend_coef_table"),
+                      hr(),
+                      includeHTML("fullmodel_explanation.Rhtml")),
              
              # The "By Candidate" panel shows the relationship between ad spend and poll results
              # by different candidates. I did this because I suspected that candidates with
@@ -139,7 +141,9 @@ ui <- fluidPage(
                         # highest coefficient. 
                         
                         h3("Relationship between Ad Spending & Polling Results by Candidate"),
-                        plotOutput("spend_coef_plot")),
+                        plotOutput("spend_coef_plot"),
+                        hr(),
+                        includeHTML("by_candidate_explanation.Rhtml")),
                       sidebarPanel(
                         checkboxGroupInput("regress_spend_cands", 
                                            "Select Candidates",
