@@ -16,9 +16,9 @@ poll_ads_weekly <- read_rds("poll_ads_weekly.rds")
 # where each month the qualification threshold increased
 # I will use these vectors as input options in my Shiny app
 
-october_debate_cands <- c("Biden", "Booker", "Buttigieg", "Castro", "Gabbard",
+all_cands <- c("Biden", "Booker", "Buttigieg", "Castro", "Gabbard",
                           "Harris", "Klobuchar", "O'Rourke", "Sanders",
-                          "Steyer", "Warren", "Yang")
+                          "Steyer", "Warren", "Williamson", "Yang")
 
 november_debate_cands <- c("Biden", "Booker", "Buttigieg", "Gabbard",
                            "Harris", "Klobuchar", "Sanders",
@@ -64,7 +64,7 @@ ui <- fluidPage(
                       
                       sidebarPanel(
                         checkboxGroupInput("overview_cands","Select Candidates",
-                                           choices = october_debate_cands,
+                                           choices = all_cands,
                                            selected = december_debate_cands))),
              
              # The "Ads" panel looks specifically at candidates' ad strategies
@@ -75,7 +75,7 @@ ui <- fluidPage(
                       
                       sidebarPanel(
                         checkboxGroupInput("ad_cands","Select Candidates",
-                                           choices = october_debate_cands,
+                                           choices = all_cands,
                                            selected = december_debate_cands)),
                       mainPanel(
                         h3("Ad Strategies by Candidate"),
@@ -95,7 +95,7 @@ ui <- fluidPage(
                                 plotOutput("polling_plot")),
                       sidebarPanel(
                         checkboxGroupInput("polling_cands","Select Candidates",
-                                           choices = october_debate_cands,
+                                           choices = all_cands,
                                            selected = december_debate_cands)))
            )),
   
@@ -147,7 +147,7 @@ ui <- fluidPage(
                       sidebarPanel(
                         checkboxGroupInput("regress_spend_cands", 
                                            "Select Candidates",
-                                           choices = october_debate_cands,
+                                           choices = all_cands,
                                            selected = december_debate_cands))),
              
              # "Model Info" provides a description of how I created the regression
