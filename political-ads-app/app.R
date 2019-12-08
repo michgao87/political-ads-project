@@ -33,7 +33,7 @@ ui <- fluidPage(
   theme = shinytheme("flatly"),
   
   # Title describes the overarching question of my project
-  navbarPage("Effectivity of Political Ads on Google",
+  navbarPage("Performance of Political Ads on Google",
              
   # I created a "Visualizations" page to show different candidates' ad strategies
   # as a first pass at finding a relationship between ad spend and poll results
@@ -63,7 +63,7 @@ ui <- fluidPage(
                       # still in the race.
                       
                       sidebarPanel(
-                        checkboxGroupInput("overview_cands","Select Candidates",
+                        checkboxGroupInput("overview_cands","Select Democratic Presidential Candidates",
                                            choices = all_cands,
                                            selected = december_debate_cands))),
              
@@ -74,7 +74,7 @@ ui <- fluidPage(
                       # Allow users to pick which candidates they want to investigate
                       
                       sidebarPanel(
-                        checkboxGroupInput("ad_cands","Select Candidates",
+                        checkboxGroupInput("ad_cands","Select Democratic Presidential Candidates",
                                            choices = all_cands,
                                            selected = december_debate_cands)),
                       mainPanel(
@@ -94,7 +94,7 @@ ui <- fluidPage(
                       mainPanel(h3("Polling Results over 2019"),
                                 plotOutput("polling_plot")),
                       sidebarPanel(
-                        checkboxGroupInput("polling_cands","Select Candidates",
+                        checkboxGroupInput("polling_cands","Select Democratic Presidential Candidates",
                                            choices = all_cands,
                                            selected = december_debate_cands)))
            )),
@@ -146,7 +146,7 @@ ui <- fluidPage(
                         includeHTML("by_candidate_explanation.Rhtml")),
                       sidebarPanel(
                         checkboxGroupInput("regress_spend_cands", 
-                                           "Select Candidates",
+                                           "Select Democratic Presidential Candidates",
                                            choices = all_cands,
                                            selected = december_debate_cands))),
              

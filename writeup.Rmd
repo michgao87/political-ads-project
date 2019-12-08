@@ -1,0 +1,94 @@
+---
+title: "Performance of Political Ads on Google"
+subtitle: "By Democratic Presidential Candidates"
+author: "Michelle Gao"
+date: "December 13, 2019"
+output: pdf_document
+fontsize: 11pt
+geomtry: margin = 1in
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+library(broom)
+library(scales)
+library(gt)
+library(tidyverse)
+
+poll_ads_weekly <- read_rds("political-ads-app/poll_ads_weekly.rds")
+```
+
+## Introduction
+
+How effective are political web ads? Is the Internet a worthwhile place for campaigns to spend their advertising money? These questions are particularly pertinent for the 2020 Democratic presidential candidates, who are attempting to stand out in a crowded field and win over a diverse electorate from across the country. While there are many strategies for online advertising, I focused on Google political ads. According to the Google Political Advertising Transparency Report, which records all political ads run on the website and their associated metadata, over $138 million has been spent on over 180,000 ads since May 2018. These numbers will only increase as the presidential race heats up. 
+
+So how do candidates' political ads on Google perform? In particular, the relationship between ad spending and polling results is of interest. Candidates would hope that the relationship is positive. But does the association between ad spending and polling results change by candidate? And if so, what are possible reasons: the different bases that candidates naturally appeal to, the initial level of national prominence they had?
+
+Investigating the performance of Google political ads for Democratic presidential candidates will provide insight into this medium of advertising, which alongside other types of online advertising will likely become more and more important to political races in the future. Furthermore, investigating the relationship between ad spending and primary polling results will provide insight into effective strategies for spending money in an election race that will likely break records for total spending volume.
+
+## Methods
+
+I combined two data sets: the Google Political Advertising Transparency Report and FiveThirtyEight polling data. The Google report records all political ads run on the website, along with information on the ads themselves, the advertisers, and the political campaigns. FiveThirtyEight aggregates the results of many national primary polls. For both data sets, I limited my analysis to 2019.
+
+To investigate the relationships between ad spending and poll results, I aggregated all data by week. Google provided figures for weekly ad spend by political organization. I created average weekly poll results from the FiveThirtyEight data by categorizing polls by their end date and averaging each candidates' results over that period.
+
+My primary mode of analysis, other than creating visualizations that illuminated ad spending strategies, was linear regression modeling. I created a univariate model to predict average weekly poll result from weekly ad spending. I compared a model that included all the Democratic presidential candidates to models for each individual candidate.
+
+## Results and Discussion
+
+```{r}
+poll_ads_weekly %>% 
+  filter(answer %in% c("Biden", "Booker", "Buttigieg", "Harris", 
+                       "Klobuchar", "Sanders","Steyer", "Warren", 
+                       "Yang")) %>% 
+  ggplot(aes(x = end_week)) +
+  geom_line(aes(y = Spend_USD, color = "Ad Spending")) +
+  geom_line(aes(y = avg_pct * 10000, color = "Percent")) +
+  scale_y_continuous(label = comma, 
+                     sec.axis = sec_axis(~./10000, name = "Percent")) +
+  facet_wrap(~answer) +
+  labs(x = "Week", y = "Ad Spending (USD)", sec.axis = "Polling %",
+       color = "Color", 
+       title = "Ad Spending & Polling Results over 2019")
+```
+
+For the most part, ad spending strategy is not strongly correlated with polling results. Some, but far from all, spikes in ad spending seem to be followed by modest spikes in polling results. The lack of strong association may not be surprising because Google ads are just one avenue for candidates to reach audiences in an increasingly fragmented media landscape. Nevertheless, if one assumes that changes in Google ad spending strategy reflect broader shifts in ad spending that week, then it would be more disheartening for candidates to see that their changing tactics are not associated with increases in polling performance. 
+
+Candidates' divergent strategies and results are also apparent in the graph. Here are some other points of interest. For Joe Biden, an initial foray of nearly \$400,000 into Google ad spending around late April 2019, when he entered the race, was associated with a spike in polling results. Meanwhile Pete Buttigieg has recently invested more heavily in Google ads, and this is associated with a modest rise in his polling to around 10%. 
+
+For some of the lower-tier candidates, such as Cory Booker, Amy Klobuchar, and Andrew Yang, polling numbers and ad spending look roughly similar: very close to 0. They might want to spend more on advertising to raise their national profiles, but perhaps financial constraints from fundraising prevent them from pursuing such a strategy. The big outlier among lower-performing candidates is Tom Steyer, a billionaire who can afford to fund ads on his own dime. He regularly spends over \$100,000 per week on advertising, despite his poll numbers barely rising above 1 or 2%. For some, Steyer's graph embodies the criticisms of the infusion of money into politics and billionaire candidates into the race.
+
+
+```{r}
+regression_data <- poll_ads_weekly %>%
+    mutate(Spend_USD = Spend_USD / 1000)
+
+regress_spend = lm(avg_pct ~ Spend_USD, data = regression_data)
+
+poll_ads_weekly %>% 
+  filter(answer %in% c("Biden", "Booker", "Buttigieg", "Harris", 
+                       "Klobuchar", "Sanders","Steyer", "Warren", 
+                       "Yang")) %>% 
+  mutate(Spend_USD = Spend_USD / 1000) %>% 
+  group_by(answer) %>%
+  nest() %>%
+  mutate(model = map(data, ~lm(avg_pct ~ Spend_USD, data = .x))) %>%
+  mutate(spend_coef = map_dbl(model, ~coef(.x) %>% pluck("Spend_USD"))) %>% 
+  ggplot(aes(x = answer, y = spend_coef)) + 
+    geom_col() +
+    geom_hline(yintercept = summary(regress_spend)$coef[2,1],
+               linetype = "dashed", color = "dark green") +
+    labs(title = "Ad Spend vs. Poll Results Model Coefficients by Candidate",
+       x = "Candidate",
+       y = "Ad Spend Coefficient",
+       caption = "Dashed line represents ad spend coefficient for model including all candidates \n Ad Spend in units of $1000")
+```
+
+The linear relationship between Google ad spending and polling results varies widely by candidate. The dashed green line represents the ad spend coefficient, 0.035, for the full model that included all the candidates. This number indicates that an increase in $1000 of weekly ad spending is associated with a 0.035 percentage point increase in polling results that week. However, Elizabeth Warren is pushing that average up (with a coefficient of around 0.075). Bernie Sanders has a coefficient of essentially 0. Surprisingly, Joe Biden's coefficient is actually negative.
+
+What are reasons for these discrepancies? One hypothesis relates to national prominence. Perhaps some lesser-known candidates, such as Buttigieg and Yang (who have the highest coefficients following Warren), benefited from greater exposure to national audiences through Google. By the same logic, a very well-known figure like Biden would have less to benefit from, because everyone already knows him. But lack of national exposure is not a certain predictor of ad effectivity because many other unknowns, such as Tulsi Gabbard, had much smaller ad spend coefficients. 
+
+Another hypothesis concerns candidates' natural bases. Joe Biden might have a slightly negative coefficient because his base tends to be older and more traditional. The typical audience of Google ads might not be as interested in Biden's message. 
+
+Further study of this topic could delve into these discrepancies by candidate. A more complex regression model could factor in the amount of ad targeting that candidates are using, the types of ads that they're running, and the number of impressions that they're each getting. More information would help the candidates as they adjust their strategies going into the official primary season (the Iowa caucus is on February 3). More information would also help political scientists try to understand the rapidly shifting world of political advertising as the number of ways that politicians can reach their electorate continues to increase.
