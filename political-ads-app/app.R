@@ -5,6 +5,8 @@ library(shinythemes)
 library(broom)
 library(scales)
 library(gt)
+library("htmltools")
+library("vembedr")
 library(tidyverse)
 
 # Read in RDS file with cleaned data 
@@ -160,6 +162,8 @@ ui <- fluidPage(
   
   tabPanel("About",
           mainPanel(
+            h3("Video Overview"),
+            embed_url("https://www.youtube.com/watch?v=lHVEFaKbqjs&feature=youtu.be"),
             includeHTML("about.Rhtml")
           ))
   )
